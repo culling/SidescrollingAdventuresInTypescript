@@ -1,0 +1,93 @@
+//var canvas =  <HTMLCanvasElement>document.getElementById('canvas') ;
+//var context = canvas.getContext("2d");
+var raf;
+//let jumping:boolean = false;
+
+function greeter(person :string){
+    console.log(person);
+    return "Hello " + person;
+}
+
+let user = "Jane User";
+
+var box = {
+    x: 100,
+    y: 100,
+    defaultMoveX: 5,
+    defaultMoveY: 2,
+    jumpHeight: 20,
+    height:20,
+    width:20,
+    color: 'blue',
+    draw: function() {
+        console.log("Ball Draw function hit!");
+        context.fillStyle = 'blue';
+        context.fillRect(this.x,this.y,this.height , this.width);
+    }
+}
+
+function moveRight(){
+    context.clearRect(0,0, canvas.width, canvas.height);
+    box.x += box.defaultMoveX;
+    box.draw();
+}
+
+function moveLeft(){
+    context.clearRect(0,0, canvas.width, canvas.height);
+    box.x -= box.defaultMoveX;
+    box.draw();
+}
+
+function jump(){
+    console.log("Jump Hit!");
+    context.clearRect(0,0, canvas.width, canvas.height);
+
+    let timesThrough  = 0;
+    let originalHeight = box.y;
+
+    while(box.y > (originalHeight - box.jumpHeight ) ){
+        box.y -= box.defaultMoveY;
+        timesThrough++;
+        console.log("Times Through: " + timesThrough);
+
+        context.clearRect(0,0, canvas.width, canvas.height);
+        window.requestAnimationFrame(() => box.draw() );
+        //box.draw();
+    }
+
+    while(box.y < (originalHeight)){
+        box.y += box.defaultMoveY;
+
+        context.clearRect(0,0, canvas.width, canvas.height);
+        window.requestAnimationFrame(() => box.draw() );
+    }
+
+}
+
+//box.draw();
+
+
+window.addEventListener("keydown", function(e){
+    console.log(e);
+
+    switch(e.key){
+        case"ArrowRight":{
+            moveRight();
+            break;
+        }
+        case"ArrowLeft":{
+            moveLeft();
+            break;
+        }
+        case"ArrowUp":{
+            jump();
+            //raf = window.requestAnimationFrame( jump );
+            break;
+        }
+
+        default:{
+            break;
+        }
+    }
+
+});

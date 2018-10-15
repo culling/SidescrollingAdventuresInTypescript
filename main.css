@@ -1,29 +1,5 @@
-.heading-name{
-  font-size: 2em;  
-}
-
-.card-stacked{
-  text-align: center;  
-}
-
-.bio-heading{
-  font-size: 3em;
-  text-align: center;
-}
-
-.bio-sub-heading{
-  font-size: 2em;
-}
-
-.bio-details{
-  font-size: 1.2em;
-}
-.bio-tags-icons{
-  font-size: 4em;
-}
-
-.bio-tags-icons-heading{
-  font-weight: 600;
+canvas {
+  border: 1px solid black;
 }
 
 nav{
