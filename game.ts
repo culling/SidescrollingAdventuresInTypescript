@@ -13,66 +13,8 @@ let controller = {
 
 var map = {
     enemies: [
-        {
-            title:  "slime1",
-            controller:{
-                left:   false,
-                right:  false,
-                up:     false
-            },
-            x:          200,
-            y:          canvas.height - 200,
-            jumping:    false,
-            color:      "red",
-            height:     20,
-            width:      20,
-            right:      this.x + this.width,
-            left:       this.x,
-            gravity:    1,
-            friction:   0.9,
-            xVelocity:  0,
-            yVelocity:  0,
-            defaultMoveX: 0.2,
-            defaultMoveY: 20,
-            jumpHeight: 20,        
-            getBottom: function(){
-                return this.y + this.height;
-            },
-            setBottom: function( newBottom ){
-                this.y = newBottom - this.height;
-            },
-            getTop: function(){
-                return this.y;
-            },
-            move: function(){
-                let controller = this.controller;
-                if(controller.up && !this.jumping){
-                    this.yVelocity -= this.defaultMoveY;
-                    this.jumping = true;
-                }
-            
-                if(controller.left){
-                    this.xVelocity -= this.defaultMoveX;
-                }
-                if(controller.right){
-                    this.xVelocity += this.defaultMoveX;
-                }
-            
-                this.yVelocity += this.gravity;
-            
-                this.x += this.xVelocity;
-                this.y += this.yVelocity;
-            
-                this.xVelocity *= this.friction;
-                this.yVelocity *= this.friction;
-            
-            },
-            draw: function(){
-                context.fillStyle = this.color;
-                //context.arc(this.x, this.y, this.width/2, 0, 360);
-                context.fillRect(this.x, this.y, this.width, this.height);
-            }
-        }
+        new Enemy('red', 200, 140),
+        //new Enemy('purple', 400, 20)
     ],
     obstacles: [
     {
@@ -125,9 +67,8 @@ var map = {
     },
     moveEnemies: function(){
         for(var enemy of this.enemies){
-            console.log(enemy);
+            //console.log(enemy);
             enemy.move();
-
             
             var currentObstacle = map.getOntop(enemy);
 
@@ -144,7 +85,16 @@ var map = {
                 return obstacle;
             }
         }
+    },
+
+    killEnemies: function(actor){
+        for(var enemy of this.enemies){
+            if(actor.enemyInKillZone(enemy) ){
+                return enemy;
+            }
+        }
     }
+    
 }
 
 function isInside(actor, obstacle){
@@ -157,69 +107,12 @@ function isInside(actor, obstacle){
 }
 
 
-var box = {
-    controller: {
-        left: false,
-        right: false,
-        up: false
-    },
-    x:          100,
-    y:          10,
-    xVelocity:  0,
-    yVelocity:  0,
-    defaultMoveX: 0.8,
-    defaultMoveY: 20,
-    jumpHeight: 20,
-    height:     20,
-    width:      20,    
-    left:       this.x,
-    right:      this.x+ this.width,
-    color:      'blue',
-    jumping:    false,
-    gravity:    1,
-    friction:   0.9,
-    getBottom: function(){
-        return this.y + this.height;
-    },
-    setBottom: function( newBottom ){
-        this.y = newBottom - this.height;
-    },
-    getTop: function(){
-        return this.y;
-    },
-    move: function(){
-        let controller = this.controller;
 
-        if(controller.up && !this.jumping){
-            this.yVelocity -= this.defaultMoveY;
-            this.jumping = true;
-        }
-    
-        if(controller.left){
-            this.xVelocity -= this.defaultMoveX;
-        }
-        if(controller.right){
-            this.xVelocity += this.defaultMoveX;
-        }
-    
-        this.yVelocity += this.gravity;
-    
-        this.x += this.xVelocity;
-        this.y += this.yVelocity;
-    
-        this.xVelocity *= this.friction;
-        this.yVelocity *= this.friction;    
-    },
-    draw: function() {
-        //console.log("Ball Draw function hit!");
-        context.fillStyle = 'blue';
-        context.fillRect(this.x, this.y, this.height , this.width);
-    }
-}
 
+let box = new Actor('blue', 100, 100);
 
 window.addEventListener("keydown", function(e){
-    console.log(e);
+    //console.log(e);
     switch(e.key){
         case"ArrowRight":{
             box.controller.right = true;
@@ -241,7 +134,7 @@ window.addEventListener("keydown", function(e){
 });
 
 window.addEventListener("keyup", function(e){
-    console.log(e);
+    //console.log(e);
     switch(e.key){
         case"ArrowRight":{
             box.controller.right = false;
@@ -268,16 +161,22 @@ function gameLoop(){
     box.move();
     map.moveEnemies();
     
-
     var currentObstacle = map.getOntop(box);
-
     if(currentObstacle != null){
-        //if(box.y > 100){
         box.jumping = false;
         box.setBottom( currentObstacle.getTop() );
         box.yVelocity = 0;
-        //}
     }
+
+    var attackedEnemy = map.killEnemies(box);
+    if(attackedEnemy != null){
+        console.log("Attacked Enemy: " + attackedEnemy);
+        //box.jumping = false;
+        box.setBottom( attackedEnemy.getTop() );
+        box.yVelocity = 0;
+        attackedEnemy.color = "black";
+    }
+
 
     context.clearRect(0, 0, canvas.width, canvas.height);
 
