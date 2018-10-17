@@ -21,6 +21,7 @@ class Actor{
     jumping:boolean     = false;
     gravity:number      = 1;
     friction:number     = 0.9;
+    //killZone:KillZone   = new KillZone(this.getTop(), this.getBottom() + 5, this.getLeft(),this.getRight());
 
     toString(){
         let myDescription:String = new String();
@@ -34,21 +35,22 @@ class Actor{
 
         myDescription += "}";
         return myDescription;
-    }
+    };
 
     getKillZone(){
-        var killZone={
-            top:    this.getTop(),
-            bottom: this.getBottom() + 5,
-            left:   this.getLeft(),
-            right:  this.getRight()
-        }
-        return killZone;
+       let killZone:KillZone = new KillZone(
+            this.getTop(),
+            this.getBottom() + 5,
+            this.getLeft(),
+            this.getRight()
+        );
+       return killZone;
     }
 
     enemyInKillZone(enemy:Actor){
         
         var killZone = this.getKillZone();
+        //let killZone = this.killZone;
         let yKill:boolean       = (enemy.getTop() < killZone.bottom) && (enemy.getTop() > killZone.top);
         let xKill:boolean       = (enemy.getLeft() < killZone.right) && (enemy.getRight() > killZone.left );
         if(xKill && yKill){
@@ -64,6 +66,15 @@ class Actor{
     setBottom( newBottom ){
         this.y = newBottom - this.height;
     }
+
+    setHeight(height:number){
+        this.height = height;
+    }
+
+    setWidth(width:number){
+        this.width = width;
+    }
+
 
     getTop(){
         return this.y;
@@ -104,6 +115,14 @@ class Actor{
     draw() {
         context.fillStyle = this.color;
         context.fillRect(this.x, this.y, this.height, this.width);
+    }
+
+    dies(){
+        console.log(this.title  + " has Died");
+        this.color = 'black';
+        this.setHeight(0);
+        this.setWidth(0);
+        this.draw  = function(){};
     }
 
     public constructor(color: string, x: number, y: number){

@@ -14,7 +14,7 @@ let controller = {
 var map = {
     enemies: [
         new Enemy('red', 200, 140),
-        //new Enemy('purple', 400, 20)
+        new Enemy('purple', 400, 20)
     ],
     obstacles: [
     {
@@ -174,7 +174,8 @@ function gameLoop(){
         //box.jumping = false;
         box.setBottom( attackedEnemy.getTop() );
         box.yVelocity = 0;
-        attackedEnemy.color = "black";
+        //attackedEnemy.color = "black";
+        attackedEnemy.dies();
     }
 
 
