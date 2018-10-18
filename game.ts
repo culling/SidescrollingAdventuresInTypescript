@@ -1,62 +1,55 @@
 
 let canvas      =  <HTMLCanvasElement>document.getElementById('canvas') ;
 let context     = canvas.getContext("2d");
-//let gravity     = 1;
-//let friction    = 0.9;
-/*
-let controller = {
-    left: false,
-    right: false,
-    up: false
-}
-*/
+
 
 var map = {
+    currentScreenMapX: 0,
     enemies: [
         new Enemy('red', 200, 140),
         new Enemy('purple', 400, 20)
     ],
     obstacles: [
-    {
-        title:  "ground",
-        x:      0,
-        y:      canvas.height - 20,
-        color:  "black",
-        height: canvas.height,
-        width:  canvas.width,
-        right:  this.x + this.width,
-        left:   this.x,
-        getBottom: function(){
-            return this.y + this.height;
-        },
-        getTop: function(){
-            return this.y;
-        },
-        draw: function(){
-            context.fillStyle = this.color;
-            context.fillRect(this.x, this.y, this.width, this.height);
-        }
-    },{
-        title:  "ledge1",
-        x:      80,
-        y:      canvas.height - 80,
-        color:  "black",
-        height: canvas.height,
-        width:  canvas.width,
-        right:  this.x + this.width,
-        left:   this.x,
-        getBottom: function(){
-            return this.y + this.height;
-        },
-        getTop: function(){
-            return this.y;
-        },
-        draw: function(){
-            context.fillStyle = this.color;
-            context.fillRect(this.x, this.y, this.width, this.height);
-        }
-    }
+        new Platform(
+            "ground",
+            "black",
+            0,
+            canvas.height - 20,
+            canvas.width * 30,
+            20
+        ),
+        new Platform(
+            "platform1",
+            "black",
+            80,
+            canvas.height - 80,
+            canvas.width,
+            80
+        ),
+        new Platform(
+            "platform2",
+            "black",
+            canvas.width + 180,
+            canvas.height - 80,
+            160,
+            80
+        ),
+        new Platform(
+            "platform3",
+            "black",
+            canvas.width + 280,
+            canvas.height - 100,
+            260,
+            180
+        )
     ],
+    getGroundWidth(){
+        for(var obstacle of this.obstacles){
+            if(obstacle.title == "ground"){
+                return obstacle.getWidth()
+            }
+        }
+    },
     draw: function(){
         for(var obstacle of this.obstacles){
             obstacle.draw();
@@ -86,18 +79,29 @@ var map = {
             }
         }
     },
-
     killEnemies: function(actor){
         for(var enemy of this.enemies){
-            if(actor.enemyInKillZone(enemy) ){
+            if(actor.enemyInKillZone(enemy) && (! enemy.isDead() ) ){
                 return enemy;
             }
         }
+    },
+    attackActor: function(actor){
+        for(var enemy of this.enemies){
+            if(enemy.enemyInKillZone(actor) && (! enemy.isDead()) ){
+                console.log("Actor attacked: " + actor );
+                return actor;
+            }
+        }
+    },
+    clear: function(){
+        context.clearRect(0, 0, canvas.width, canvas.height);
     }
-    
 }
 
+
 function isInside(actor, obstacle){
+    //console.log("Obstacle:" + obstacle);
     var inX = (actor.x > obstacle.x )&& (actor.x < obstacle.x + obstacle.width );
     var inY = ( actor.getBottom() > obstacle.getTop() )&& (actor.getBottom() > obstacle.getTop() );
     //console.log("Actor Bottom: " + actor.getBottom()    );
@@ -105,9 +109,6 @@ function isInside(actor, obstacle){
 
     return (inX && inY);
 }
-
-
-
 
 let box = new Actor('blue', 100, 100);
 
@@ -157,7 +158,6 @@ window.addEventListener("keyup", function(e){
 
 function gameLoop(){
 
-
     box.move();
     map.moveEnemies();
     
@@ -171,18 +171,36 @@ function gameLoop(){
     var attackedEnemy = map.killEnemies(box);
     if(attackedEnemy != null){
         console.log("Attacked Enemy: " + attackedEnemy);
-        //box.jumping = false;
         box.setBottom( attackedEnemy.getTop() );
         box.yVelocity = 0;
-        //attackedEnemy.color = "black";
-        attackedEnemy.dies();
+        attackedEnemy.takesDamage(box.damage);
+    }
+    
+
+    let attackingEnemy:Enemy = map.attackActor(box);
+    if((attackingEnemy != null ) && (! attackingEnemy.isDead())){
+        box.takesDamage(attackingEnemy.damage);
     }
 
 
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    map.clear();
+
+    let scrollBorder ={
+        forward:(canvas.width/2),
+        backward:(canvas.width/10)
+    }
+
+    if(box.x > (map.currentScreenMapX + scrollBorder.forward ) ){
+
+        map.currentScreenMapX += (box.x - (map.currentScreenMapX + scrollBorder.forward));
+    }
+    if(box.x < (map.currentScreenMapX +  scrollBorder.backward ) ){
+        map.currentScreenMapX += (box.x - (map.currentScreenMapX + scrollBorder.backward));
+    }
 
     map.draw();
     box.draw();
+    map.currentScreenMapX = 0;
 
     window.requestAnimationFrame(gameLoop);
 }
