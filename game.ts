@@ -41,6 +41,30 @@ var map = {
             canvas.height - 100,
             260,
             180
+        ),
+        new Platform(
+            "platform11",
+            "black",
+            80,
+            canvas.width *2,
+            canvas.height - 80,
+            80
+        ),
+        new Platform(
+            "platform12",
+            "black",
+            canvas.width*2 + 180 ,
+            canvas.height - 80,
+            160,
+            80
+        ),
+        new Platform(
+            "platform13",
+            "black",
+            canvas.width*2 + 280,
+            canvas.height - 150,
+            260,
+            180
         )
     ],
     getGroundWidth(){
