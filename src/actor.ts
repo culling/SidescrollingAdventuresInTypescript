@@ -389,3 +389,7 @@ class Controller{
     }
 
 }
+
+
+//export {Actor};
+//export {Enemy};

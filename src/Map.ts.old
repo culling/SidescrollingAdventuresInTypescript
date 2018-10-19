@@ -1,14 +1,13 @@
-let canvas      =  <HTMLCanvasElement>document.getElementById('canvas') ;
-let context     = canvas.getContext("2d");
+//import {Enemy} from "./Actor";
 
 
-var map = {
-    currentScreenMapX: 0,
+class Map{
+    currentScreenMapX: 0;
     enemies: [
         new Enemy('red', 200, 140),
         new Enemy('purple', 400, 20)
-    ],
-    obstacles: [
+    ];
+    obstacles= [
         new Platform(
             "ground",
             "black",
@@ -65,7 +64,7 @@ var map = {
             260,
             180
         )
-    ],
+    ];
     getGroundWidth(){
         for(var obstacle of this.obstacles){
             if(obstacle.title == "ground"){
@@ -123,101 +122,5 @@ var map = {
         var inY = ( actor.getBottom() > obstacle.getTop() )&& (actor.getBottom() > obstacle.getTop() );
         return (inX && inY);
     }
+
 }
-
-let box = new Actor('blue', 100, 100);
-
-window.addEventListener("keydown", function(e){
-    //console.log(e);
-    switch(e.key){
-        case"ArrowRight":{
-            box.controller.right = true;
-            break;
-        }
-        case"ArrowLeft":{
-            box.controller.left = true;
-            break;
-        }
-        case"ArrowUp":{
-            box.controller.up = true;
-            break;
-        }
-
-        default:{
-            break;
-        }
-    }
-});
-
-window.addEventListener("keyup", function(e){
-    //console.log(e);
-    switch(e.key){
-        case"ArrowRight":{
-            box.controller.right = false;
-            break;
-        }
-        case"ArrowLeft":{
-            box.controller.left = false;
-            break;
-        }
-        case"ArrowUp":{
-            box.controller.up = false;
-            break;
-        }
-
-        default:{
-            break;
-        }
-    }
-});
-
-function gameLoop(){
-
-    box.move();
-    map.moveEnemies();
-    
-    var currentObstacle = map.getOntop(box);
-    if(currentObstacle != null){
-        box.jumping = false;
-        box.setBottom( currentObstacle.getTop() );
-        box.yVelocity = 0;
-    }
-
-    var attackedEnemy = map.killEnemies(box);
-    if(attackedEnemy != null){
-        console.log("Attacked Enemy: " + attackedEnemy);
-        box.setBottom( attackedEnemy.getTop() );
-        box.yVelocity = 0;
-        attackedEnemy.takesDamage(box.damage);
-    }
-    
-
-    let attackingEnemy:Enemy = map.attackActor(box);
-    if((attackingEnemy != null ) && (! attackingEnemy.isDead())){
-        box.takesDamage(attackingEnemy.damage);
-    }
-
-
-    map.clear();
-
-    let scrollBorder ={
-        forward:(canvas.width/2),
-        backward:(canvas.width/10)
-    }
-
-    if(box.x > (map.currentScreenMapX + scrollBorder.forward ) ){
-
-        map.currentScreenMapX += (box.x - (map.currentScreenMapX + scrollBorder.forward));
-    }
-    if(box.x < (map.currentScreenMapX +  scrollBorder.backward ) ){
-        map.currentScreenMapX += (box.x - (map.currentScreenMapX + scrollBorder.backward));
-    }
-
-    map.draw();
-    box.draw();
-    map.currentScreenMapX = 0;
-
-    window.requestAnimationFrame(gameLoop);
-}
-
-gameLoop();
